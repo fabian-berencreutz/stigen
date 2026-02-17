@@ -94,12 +94,18 @@ public class ProjectLauncher {
                         // Settings Screen Drawing (initial version)
                         tg.putString(2, listStartRow, "--- SETTINGS ---");
                         tg.putString(2, listStartRow + 2, "Default Directory:");
-                        tg.setBackgroundColor(TextColor.ANSI.WHITE);
-                        tg.setForegroundColor(TextColor.ANSI.BLACK);
+                        
+                        File currentPathCheck = new File(settingsPathInput);
+                        if (currentPathCheck.exists() && currentPathCheck.isDirectory()) {
+                            tg.setForegroundColor(TextColor.ANSI.GREEN);
+                        } else {
+                            tg.setForegroundColor(TextColor.ANSI.RED);
+                        }
                         tg.putString(2, listStartRow + 3, " " + settingsPathInput + " ");
-                        tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
-                        tg.setForegroundColor(TextColor.ANSI.WHITE);
+                        
+                        tg.setForegroundColor(TextColor.ANSI.WHITE); // Reset color
                         tg.putString(2, listStartRow + 5, "(Type to change, ENTER to save, ESC to cancel)");
+
 
                         screen.setCursorPosition(new TerminalPosition(3 + settingsPathInput.length(), listStartRow + 3));
 
