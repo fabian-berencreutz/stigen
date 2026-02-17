@@ -61,42 +61,69 @@ public class ProjectLauncher {
                     tg.setForegroundColor(TextColor.ANSI.WHITE);
                     tg.putString(2, 2, "(/ to search, ESC to cancel, Q to exit, ENTER to open)");
 
-                    // Clear the entire list area before redrawing
+                    // --- Projektlista ---
                     int listStartRow = 4;
                     int searchLineRow = screen.getTerminalSize().getRows() - 2;
+                    // Rensa listområdet
                     for (int row = listStartRow; row < searchLineRow; row++) {
                         tg.putString(0, row, " ".repeat(screen.getTerminalSize().getColumns()));
                     }
+                    // Rita listan
+                    if (displayedProjects.isEmpty() && currentMode == Mode.SEARCH && !searchQuery.isEmpty()) {
+                        tg.setForegroundColor(TextColor.ANSI.RED);
+                        tg.putString(2, listStartRow, "No projects found matching '" + searchQuery + "'");
+                        tg.setForegroundColor(TextColor.ANSI.WHITE); // Återställ färgen
+                    } else if (displayedProjects.isEmpty() && !allProjects.isEmpty()){ // If allProjects is not empty, but displayed is empty (e.g., initial state with no projects)
+                         tg.setForegroundColor(TextColor.ANSI.RED);
+                        tg.putString(2, listStartRow, "No projects found in /home/fabian/dev/java");
+                        tg.setForegroundColor(TextColor.ANSI.WHITE); // Återställ färgen
+                    } else if (allProjects.isEmpty()){
+                         tg.setForegroundColor(TextColor.ANSI.RED);
+                        tg.putString(2, listStartRow, "No projects found in /home/fabian/dev/java");
+                        tg.setForegroundColor(TextColor.ANSI.WHITE); // Återställ färgen
+                    } else {
+                        for (int i = 0; i < displayedProjects.size(); i++) {
+                            if (listStartRow + i >= searchLineRow) {
+                                break; // Rita inte utanför listområdet
+                            }
+                            String name = displayedProjects.get(i).getName();
+                            String format = "%-" + longestName + "s";
+                            String paddedName = String.format(format, name);
 
-                    for (int i = 0; i < displayedProjects.size(); i++) {
-                        if (listStartRow + i >= searchLineRow) {
-                            break; // Do not draw past the search line
-                        }
-                        String name = displayedProjects.get(i).getName();
-                        String format = "%-" + longestName + "s";
-                        String paddedName = String.format(format, name);
-
-                        if (i == selectedIndex) {
-                            tg.setForegroundColor(TextColor.ANSI.CYAN);
-                            tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
-                            tg.putString(2, listStartRow + i, ">  " + paddedName);
-                        } else {
-                            tg.setForegroundColor(TextColor.ANSI.WHITE);
-                            tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
-                            tg.putString(2, listStartRow + i, "   " + paddedName);
+                            if (i == selectedIndex) {
+                                tg.setForegroundColor(TextColor.ANSI.CYAN);
+                                tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+                                tg.putString(2, listStartRow + i, ">  " + paddedName);
+                            } else {
+                                tg.setForegroundColor(TextColor.ANSI.WHITE);
+                                tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+                                tg.putString(2, listStartRow + i, "   " + paddedName);
+                            }
                         }
                     }
 
-                    // Rensa den gamla sökraden
+                    // --- Sökfält ---
+                    tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+                    tg.setForegroundColor(TextColor.ANSI.WHITE);
                     tg.putString(0, searchLineRow, " ".repeat(screen.getTerminalSize().getColumns()));
-
-                    // Visa sökrutan om vi är i SEARCH-läge
                     if (currentMode == Mode.SEARCH) {
                         tg.putString(2, searchLineRow, "/" + searchQuery);
                         screen.setCursorPosition(new TerminalPosition(2 + 1 + searchQuery.length(), searchLineRow));
                     } else {
-                        screen.setCursorPosition(null); // Göm markören i NORMAL-läge
+                        screen.setCursorPosition(null);
                     }
+
+                    // --- Statusrad ---
+                    int statusBarRow = screen.getTerminalSize().getRows() - 1;
+                    tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+                    tg.setForegroundColor(TextColor.ANSI.CYAN);
+                    String statusBarText = String.format(" MODE: %-7s | PROJECTS: %d / %d", currentMode, displayedProjects.size(), allProjects.size());
+                    tg.putString(0, statusBarRow, " ".repeat(screen.getTerminalSize().getColumns()));
+                    tg.putString(1, statusBarRow, statusBarText);
+                    
+                    // Återställ färger för säkerhets skull
+                    tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+                    tg.setForegroundColor(TextColor.ANSI.DEFAULT);
 
                     screen.refresh();
                     needsRedraw = false;
