@@ -48,7 +48,7 @@ public class ProjectLauncher {
                 tg.setForegroundColor(TextColor.ANSI.CYAN);
                 tg.putString(2, 1, "=== STIGEN ===");
                 tg.setForegroundColor(TextColor.ANSI.WHITE);
-                tg.putString(2, 2, "Välj en stig att vandra (ENTER för att öppna, ESC för att backa)");
+                tg.putString(2, 2, "Choose a project to open (ENTER to open, ESC to exit)");
 
                 for (int i = 0; i < projects.size(); i++) {
                     String name = projects.get(i).getName();
